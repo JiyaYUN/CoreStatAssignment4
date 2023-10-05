@@ -7,7 +7,7 @@ url_AAPL <- "https://raw.githubusercontent.com/JiyaYUN/CoreStatAssignment4/main/
 url_CSCO <- "https://raw.githubusercontent.com/JiyaYUN/CoreStatAssignment4/main/CSCO.csv"
 url_HD <- "https://raw.githubusercontent.com/JiyaYUN/CoreStatAssignment4/main/HD.csv"
 url_VZ <- "https://raw.githubusercontent.com/JiyaYUN/CoreStatAssignment4/main/VZ.csv"
-url_W5000 <- "https://raw.githubusercontent.com/JiyaYUN/CoreStatAssignment4/main/%5EW5000.csv"
+url_W5000 <- "https://github.com/JiyaYUN/CoreStatAssignment4/blob/main/W5000.csv"
 url_MktRf <- "https://github.com/JiyaYUN/CoreStatAssignment4/blob/main/F-F_Research_Data_Factors.CSV"
 
 
