@@ -1,8 +1,10 @@
 rm(list = ls())
 
+# package
 library(readr)
 library(curl)
 
+# data collection
 url_AAPL <- "https://raw.githubusercontent.com/JiyaYUN/CoreStatAssignment4/main/AAPL.csv"
 url_CSCO <- "https://raw.githubusercontent.com/JiyaYUN/CoreStatAssignment4/main/CSCO.csv"
 url_HD <- "https://raw.githubusercontent.com/JiyaYUN/CoreStatAssignment4/main/HD.csv"
@@ -30,9 +32,11 @@ CSCO_Stock <- read.csv(CSCO)
 HD_Stock <- read.csv(HD)
 VZ_Stock <- read.csv(VZ)
 
+# 0 obs. in github
 W5000_Stock <- read.csv("D:/Simon.UR/Fall A/GBA462 Core Statistics/Core Stat Assignment/^W5000.csv")
 MktRf <- read.csv("D:/Simon.UR/Fall A/GBA462 Core Statistics/Core Stat Assignment/F-F_Research_Data_Factors.CSV")
 
+# R and Datatype conversion
 library(dplyr)
 AAPL_Stock <- na.omit(
      AAPL_Stock %>%
@@ -86,11 +90,73 @@ W5000_Stock <- na.omit(
      )
 )
 
+# Hypothesis test
+# Mkt
 Mktdf <- merge(W5000_Stock, MktRf, by = "Date") %>%
      mutate(market_excess_return = R - RF)
 
+#AAPL
 AAPL_Stock= merge(AAPL_Stock, MktRf, by = "Date")
 AAPL_Stock = AAPL_Stock %>% mutate(excess_return = R - Rf)
 
-ols = lm(AAPL_Stock$excess_return ~ Mktdf$market_excess_return)
-print(summary(ols)) 
+ols_AAPL = lm(AAPL_Stock$excess_return ~ Mktdf$market_excess_return)
+print(summary(ols_AAPL)) 
+
+#CSCO
+CSCO_Stock= merge(CSCO_Stock, MktRf, by = "Date")
+CSCO_Stock = CSCO_Stock %>% mutate(excess_return = R - Rf)
+
+ols_CSCO = lm(CSCO_Stock$excess_return ~ Mktdf$market_excess_return[4:nrow(Mktdf)])
+print(summary(ols_CSCO)) 
+
+#HD
+HD_Stock= merge(HD_Stock, MktRf, by = "Date")
+HD_Stock = HD_Stock %>% mutate(excess_return = R - Rf)
+
+ols_HD = lm(HD_Stock$excess_return ~ Mktdf$market_excess_return)
+print(summary(ols_HD))
+
+#VZ
+VZ_Stock= merge(VZ_Stock, MktRf, by = "Date")
+VZ_Stock = VZ_Stock %>% mutate(excess_return = R - Rf)
+
+ols_VZ = lm(VZ_Stock$excess_return ~ Mktdf$market_excess_return)
+print(summary(ols_VZ)) 
+
+
+rfj <- read_excel("D:/Simon.UR/Fall A/GBA462 Core Statistics/rfj_data.xlsx")
+#regression model
+ols_Tropicana <- summary(lm(q1 ~ p1, data = rfj))
+ols_MinuteMade <- summary(lm(q2 ~ p2, data = rfj))
+ols_PrivateLabel<- summary(lm(q3 ~ p3, data = rfj))
+#extract alpha and beta
+alpha_Tropicana <- coef(ols_Tropicana)[1]
+beta_Tropicana <- coef(ols_Tropicana)[2]
+
+alpha_MinuteMade <- coef(ols_MinuteMade)[1]
+beta_MinuteMade <- coef(ols_MinuteMade)[2]
+
+alpha_PrivateLabel <- coef(ols_PrivateLabel)[1]
+beta_PrivateLabel <- coef(ols_PrivateLabel)[2]
+
+p_elasticity_Tropicana <- beta_Tropicana * (mean(rfj$p1) / mean(rfj$q1))
+p_elasticity_MinuteMade <- beta_MinuteMade * (mean(rfj$p2) / mean(rfj$q2))
+p_elasticity_PrivateLabel <- beta_PrivateLabel * (mean(rfj$p3) / mean(rfj$q3))
+
+profit_Tropicana <- function(price) {
+     profit <- (price - 0.01) * (alpha_Tropicana - (beta_Tropicana*price))
+     return(profit)
+}
+optimize(profit_Tropicana, interval = c(0, 1000), maximum = TRUE)
+
+profit_MinuteMade <- function(price) {
+     profit <- (price - 0.01) * (alpha_MinuteMade  - (beta_MinuteMade *price))
+     return(profit)
+}
+optimize(profit_MinuteMade, interval = c(0, 1000), maximum = TRUE)
+
+profit_PrivateLabel <- function(price) {
+     profit <- (price - 0.01) * (alpha_PrivateLabel  - (beta_PrivateLabel*price))
+     return(profit)
+}
+optimize(profit_PrivateLabel, interval = c(0, 1000), maximum = TRUE)
