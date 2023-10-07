@@ -124,11 +124,13 @@ ols_VZ = lm(VZ_Stock$excess_return ~ Mktdf$market_excess_return)
 print(summary(ols_VZ)) 
 
 
-rfj <- read_excel("D:/Simon.UR/Fall A/GBA462 Core Statistics/rfj_data.xlsx")
+library(readxl)
+rfj <- read_excel("D:/Simon.UR/Fall A/GBA462 Core Statistics/rfj_data_Q2.xlsx")
 #regression model
 ols_Tropicana <- summary(lm(q1 ~ p1, data = rfj))
 ols_MinuteMade <- summary(lm(q2 ~ p2, data = rfj))
 ols_PrivateLabel<- summary(lm(q3 ~ p3, data = rfj))
+
 #extract alpha and beta
 alpha_Tropicana <- coef(ols_Tropicana)[1]
 beta_Tropicana <- coef(ols_Tropicana)[2]
@@ -139,24 +141,32 @@ beta_MinuteMade <- coef(ols_MinuteMade)[2]
 alpha_PrivateLabel <- coef(ols_PrivateLabel)[1]
 beta_PrivateLabel <- coef(ols_PrivateLabel)[2]
 
+#elasticity
 p_elasticity_Tropicana <- beta_Tropicana * (mean(rfj$p1) / mean(rfj$q1))
 p_elasticity_MinuteMade <- beta_MinuteMade * (mean(rfj$p2) / mean(rfj$q2))
 p_elasticity_PrivateLabel <- beta_PrivateLabel * (mean(rfj$p3) / mean(rfj$q3))
 
+#optimization
 profit_Tropicana <- function(price) {
-     profit <- (price - 0.01) * (alpha_Tropicana - (beta_Tropicana*price))
+     profit <- (price - 0.01) * (alpha_Tropicana + (beta_Tropicana * price))
      return(profit)
 }
-optimize(profit_Tropicana, interval = c(0, 1000), maximum = TRUE)
+optimize(profit_Tropicana, 
+         interval = c(min(rfj$p1), max(rfj$p1)), 
+         maximum = TRUE)
 
 profit_MinuteMade <- function(price) {
-     profit <- (price - 0.01) * (alpha_MinuteMade  - (beta_MinuteMade *price))
+     profit <- (price - 0.01) * (alpha_MinuteMade + (beta_MinuteMade * price))
      return(profit)
 }
-optimize(profit_MinuteMade, interval = c(0, 1000), maximum = TRUE)
+optimize(profit_MinuteMade, 
+         interval = c(min(rfj$p2), max(rfj$p2)), 
+         maximum = TRUE)
 
-profit_PrivateLabel <- function(price) {
-     profit <- (price - 0.01) * (alpha_PrivateLabel  - (beta_PrivateLabel*price))
+profit_PrivateLabel<- function(price) {
+     profit <- (price - 0.01) * (alpha_PrivateLabel + (beta_PrivateLabel * price))
      return(profit)
 }
-optimize(profit_PrivateLabel, interval = c(0, 1000), maximum = TRUE)
+optimize(profit_PrivateLabel, 
+         interval = c(min(rfj$p3), max(rfj$p3)), 
+         maximum = TRUE)
